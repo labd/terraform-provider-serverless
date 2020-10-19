@@ -5,10 +5,13 @@
 - Add support for custom environment variables
 - Make `package_dir` optional
 - Support for having no `serverless_bin_dir` path
+- Support AWS assume role credentials
+
 
 ## 0.2.0 (2020-01-27)
 
 - Refactor + decoupling of serverless and terraform abstractions
+
 
 ## UNRELEASED
 

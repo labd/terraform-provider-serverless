@@ -27,7 +27,18 @@ To avoid spurious deploys, Serverless requires you to package out-of-band from `
 ## Resources
 
 ```hcl
+data "aws_caller_identity" "current" {}
+
 resource "serverless_deployment" "example" {
+  # Used to support assume role policies.
+  # Whenever this resource is used within a certain Terraform AWS context,
+  # we must make sure the correct AWS credentails are used
+  aws_config {
+    account_id  = data.aws_caller_identity.current.account_id
+    caller_arn  = data.aws_caller_identity.current.arn
+    caller_user = data.aws_caller_identity.current.user_id
+  }
+
   # The Serverless stage. Usually corresponds to the stage/environment of the Terraform module.
   stage               = "sandbox"
 
@@ -39,7 +50,7 @@ resource "serverless_deployment" "example" {
   package_dir         = ".terraform-serverless"
 
   # The directory to look for the `serverless` binary. Otherwise uses the binary in your current $PATH
-  serverless_bin_dir = abspath("example/node_modules/.bin")
+  # serverless_bin_dir = abspath("example/node_modules/.bin")
 
   # All environment variables are exposed to serverless and can be used in `serverless.yml`
   env = {
