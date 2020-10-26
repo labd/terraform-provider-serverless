@@ -62,6 +62,13 @@ resource "serverless_deployment" "example" {
 output "serverless_url" {
   value = serverless_deployment.example.http_api_url
 }
+
+output "serverless_arns" {
+  value = {
+    "hello": serverless_deployment.example.function_arns.hello,
+    "bye": serverless_deployment.example.function_arns.bye,
+  }
+}
 ```
 
 ## Contributing
