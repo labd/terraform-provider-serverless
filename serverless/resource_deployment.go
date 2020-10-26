@@ -67,6 +67,10 @@ func resourceDeployment() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"http_api_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"aws_config": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -149,9 +153,12 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	cf := cloudformation.New(sess, &aws.Config{Credentials: creds})
 
-	_, err := cf.DescribeStacks(&cloudformation.DescribeStacksInput{
+	stacksOutput, err := cf.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: aws.String(strings.Join([]string{id, stage}, "-")),
 	})
+
+	setStackInfo(stacksOutput, d)
+
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			if aerr.Code() == "ValidationError" && strings.Contains(aerr.Message(), "does not exist") {
