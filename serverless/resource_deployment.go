@@ -67,6 +67,10 @@ func resourceDeployment() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"function_arns": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 			"http_api_url": {
 				Type:     schema.TypeString,
 				Computed: true,

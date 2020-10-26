@@ -1,5 +1,10 @@
 # Changes
 
+## 0.3.1 (unreleased)
+
+- Add `function_arns` attribute reference
+
+
 ## 0.3.0 (2020-10-26)
 
 - Add support for custom environment variables
