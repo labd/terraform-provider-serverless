@@ -58,6 +58,10 @@ resource "serverless_deployment" "example" {
     "FOO": "BAR",
   }
 }
+
+output "serverless_url" {
+  value = serverless_deployment.example.http_api_url
+}
 ```
 
 ## Contributing
