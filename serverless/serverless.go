@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -32,6 +33,7 @@ type Serverless struct {
 	binPath    string
 	configDir  string
 	config     map[string]interface{}
+	provider   string
 	env        []string
 	packageDir string
 	stage      string
@@ -82,7 +84,7 @@ func (s Serverless) exec(command int) error {
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return fmt.Errorf("%v\n%w", string(output), err)
+		return fmt.Errorf("Error running command 'serverless %v':\n%v\n%w", args, string(output), err)
 	}
 
 	return nil
@@ -102,10 +104,23 @@ func (s *Serverless) loadServerlessConfig() error {
 	}
 
 	if err = json.Unmarshal(output, &config); err != nil {
-		return err
+		// The azure provider has the annoying habit of printing
+		// 'Serverless: Initializing provider configuration...'
+		// before the actual JSON output, which causes an error while decoding.
+		// Let's strip all unrelevant stuff before the first bracket and try again.
+		re := regexp.MustCompile(`(?s)({.*)`)
+		if match := re.FindSubmatch(output); match != nil {
+			output = match[0]
+			err = json.Unmarshal(output, &config)
+		}
+
+		if err != nil {
+			return fmt.Errorf("Could not parse output of 'serverless print --format json':\n%w\n%s", err, output)
+		}
 	}
 
 	s.config = config
+	s.provider = config["provider"].(map[string]interface{})["name"].(string)
 
 	return nil
 }

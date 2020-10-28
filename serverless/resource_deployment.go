@@ -146,9 +146,29 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
-	id := d.Id()
-	stage := d.Get("stage").(string)
+	serverless, err := NewServerless(d)
+	if err != nil {
+		return err
+	}
 
+	if serverless.provider == "aws" {
+		if err := resourceAWSDeploymentRead(d, m); err != nil {
+			return err
+		}
+	} else if serverless.provider == "azure" {
+		if err := resourceAzureDeploymentRead(d, m); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func resourceAzureDeploymentRead(d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func resourceAWSDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	sess := session.Must(session.NewSession())
 	creds, awsErr := loadAWSCredentials(d)
 	if awsErr != nil {
@@ -157,11 +177,12 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	cf := cloudformation.New(sess, &aws.Config{Credentials: creds})
 
+	id := d.Id()
+	stage := d.Get("stage").(string)
+
 	stacksOutput, err := cf.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: aws.String(strings.Join([]string{id, stage}, "-")),
 	})
-
-	setStackInfo(stacksOutput, d)
 
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
@@ -173,6 +194,7 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	setStackInfo(stacksOutput, d)
 	return nil
 }
 
