@@ -120,7 +120,10 @@ func (s *Serverless) loadServerlessConfig() error {
 	}
 
 	s.config = config
-	s.provider = config["provider"].(map[string]interface{})["name"].(string)
+
+	if name := config["provider"].(map[string]interface{})["name"]; name != nil {
+		s.provider = name.(string)
+	}
 
 	return nil
 }
@@ -193,6 +196,8 @@ func NewServerless(resource getter) (*Serverless, error) {
 		stage:      resource.Get("stage").(string),
 		hash:       resource.Get("package_hash").(string),
 		args:       args,
+		// default to AWS
+		provider: "aws",
 	}
 
 	if awsCreds, err := loadAWSCredentials(resource); err != nil {
