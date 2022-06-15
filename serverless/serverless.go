@@ -204,7 +204,7 @@ func updateEnvWithCredentials(s *Serverless, creds *credentials.Credentials) err
 	// serverless uses the correct credentials
 	credValue, err := creds.Get()
 	if err != nil {
-		return fmt.Errorf("Failed retreiving Assume role credentials:\n%w", err)
+		return fmt.Errorf("failed retreiving Assume role credentials:\n%w", err)
 	}
 
 	newEnv := []string{

@@ -24,7 +24,7 @@ func loadAWSCredentials(resource getter) (*credentials.Credentials, error) {
 	if result := re.FindStringSubmatch(callerArn); result != nil {
 		role = result[1]
 	} else {
-		return nil, fmt.Errorf("Could not parse role name from callerArn %s", callerArn)
+		return nil, fmt.Errorf("could not parse role name from callerArn %s", callerArn)
 	}
 
 	roleArn := fmt.Sprintf("arn:aws:iam::%s:role/%s", accountId, role)
